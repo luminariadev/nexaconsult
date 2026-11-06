@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexaconsult-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: base64:your_app_key_here
+      DB_CONNECTION: mongodb
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DATABASE: nexaconsult
+      AI_GATEWAY_URL: http://host.docker.internal:20128/v1
+    depends_on:
+      - mongo
+    networks:
+      - nexaconsult-network
+
+  mongo:
+    image: mongo:7.0
+    container_name: nexaconsult-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - nexaconsult-network
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  nexaconsult-network:
+    driver: bridge
